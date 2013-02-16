@@ -1,0 +1,22 @@
+{
+  "name": "bfy-worker",
+  "version": "0.0.0",
+  "description": "web workers for browserify made fast, fun, and easy",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/chrisdickinson/bfy-worker.git"
+  },
+  "keywords": [
+    "web",
+    "worker",
+    "browserify"
+  ],
+  "author": "Chris Dickinson <chris@neversaw.us>",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "gitHead": "605fd3e24cdc44d4c9d03e136336720bc1838678"
+}
