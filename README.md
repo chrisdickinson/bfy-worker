@@ -11,18 +11,33 @@ var spawn = require('bfy-worker')
 worker = spawn(function() {
   // this executes in a separate thread.
   // *** NB: it can't reach refer to variables from enclosing scope.
-
   var path = require('path')
 
-  onmessage = function(ev) {
-    postMessage(path.join(ev.data[0], ev.data[1]))
-  }
+  process.on('data', function(data) {
+    // console.log works too!
+    console.log('wuh oh')
+
+    process.send(path.join(ev.data[0], ev.data[1]))
+  })
+
+  // you can even exit!
+  process.exit(0)
 }, __dirname)
 
-worker.onmessage = function(ev) {
+worker.on('data', function(data) {
   console.log(ev.data)
-}
-worker.postMessage(['hey', 'there'])
+})
+
+worker.send(['hey', 'there'])
+
+// works with pipes, too
+fs.createReadStream('file', 'utf8')
+  .pipe(worker(function() {
+    process.on('data', function(data) {
+      process.send(data.toUpperCase())
+    })    
+  }))
+  .pipe(process.stdout)
 
 ``` 
 
