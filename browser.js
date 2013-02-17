@@ -135,19 +135,7 @@ function fixup(worker, pid) {
   }
 
   function end(data) {
-    if(arguments.length) {
-      if(write(data) === false) {
-        stream.once('drain', function() {
-          stream.emit('close')
-        })
-      }
-    }
-
-    stream.writable = false
-    stream.emit('end')
-    if(!arguments.length) {
-      stream.emit('close')
-    }    
+    worker.postMessage({__t: 3})
   }
 
   function onerror(ev) {
@@ -278,6 +266,10 @@ function worker_setup() {
     return process
   }
 
+  process.emit = function() {
+    ee.emit.apply(ee, arguments)
+    return process
+  }
   var heartbeat
 
   heartbeat = setInterval(function() {
@@ -309,6 +301,10 @@ function worker_setup() {
         , fn = new Function('require','module','exports','__dirname','__filename','process','global', '!'+ev.data.__p.code+'()')
       )
       process.require(ev.data.__p.filename)
+    }
+
+    if(ev.data.__t === 3) {
+      process.emit('end')
     }
   }
 }
