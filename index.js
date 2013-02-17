@@ -11,6 +11,7 @@ function worker(fn, dir) {
 
   stream.pid = worker.pid
   stream.running = true
+  stream.paused = true
   stream.process = worker
   worker.send({
     __t: 2
@@ -21,7 +22,7 @@ function worker(fn, dir) {
   })
 
   worker
-    .on('data', ondata)
+    .on('message', ondata)
     .on('exit', onexit)
 
   stream.kill = worker.kill.bind(worker)
@@ -35,34 +36,22 @@ function worker(fn, dir) {
   return stream
 
   function write(data) {
+    stream.pause()
     stream.send(data)
-    return false
   }
 
   function end(data) {
-    if(arguments.length) {
-      if(write(data) === false) {
-        stream.once('drain', function() {
-          stream.emit('close')
-        })
-      }
-    }
-
-    stream.writable = false
-    stream.emit('end')
-    if(!arguments.length) {
-      stream.emit('close')
-    }    
+    worker.send({__t: 3})
   }
 
   function ondata(data) {
-    if(ev.data.__t === 0) {
-      stream.queue(ev.data.__p)
+    if(data.__t === 0) {
+      stream.queue(data.__p)
       stream.resume()
       return
     }
 
-    if(ev.data.__t === 2) {
+    if(data.__t === 2) {
       stream.resume()
       return
     } 
@@ -70,6 +59,10 @@ function worker(fn, dir) {
 
   function onexit(code) {
     stream.emit('exit', code)
-    stream.queue(null)
+    stream.writable
+    stream.readable = false
+    stream.emit('end')
+    stream.emit('close')
+    stream.closed = true
   }
 }

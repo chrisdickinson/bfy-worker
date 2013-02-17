@@ -2,7 +2,6 @@ var Module = require('module')
   , path = require('path')
 
 process.on('message', function(message) {
-    console.log('got anything at all')
   var fakeProcess = Object.create(process)
   fakeProcess.on = function(ev, fn) {
     process.on(ev, fn)
@@ -35,6 +34,10 @@ process.on('message', function(message) {
       , fakeProcess 
       , global
     )
+  }
+
+  if(message.__t === 3) {
+    process.emit('end')
   }
 })
 
